@@ -128,6 +128,24 @@
                 </executions>
             </plugin>
 
+            <!-- Build jax-rs REST self documenting html -->
+            <plugin>
+              <groupId>com.webcohesion.enunciate</groupId>
+              <artifactId>enunciate-maven-plugin</artifactId>
+              <version>2.2.0</version>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>docs</goal>
+                  </goals>
+                  <configuration>
+                    <!-- the directory where to put the enunciate docs -->
+                    <docsDir>${project.build.directory}/classes/html/</docsDir>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+
             <!-- Generate a site for deploying the artifact -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
