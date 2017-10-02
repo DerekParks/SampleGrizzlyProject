@@ -3,6 +3,14 @@ package com.company.someWebService.services;
 
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -19,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 /**
  * A dummy web service that demonstrates some feature of JAX-RS.
@@ -41,6 +50,7 @@ public class WebService {
 
   /**
    * Get n random numbers.
+   *
    * @param n number of random integers
    * @return JSON list of random integers
    */
@@ -48,6 +58,28 @@ public class WebService {
   @Produces({MediaType.APPLICATION_JSON})
   public List<Integer> getRandom(@QueryParam("n") int n) {
     return new Random().ints(n).boxed().collect(Collectors.toList());
+  }
+
+  @GET
+  @Path("streamOut/")
+  @Produces({MediaType.APPLICATION_JSON})
+  public Response getRandomStreamOut(@QueryParam("n") int n) {
+    StreamingOutput stream = os -> {
+      final Writer writer = new BufferedWriter(new OutputStreamWriter(os));
+      writer.write('[');
+
+      final Random r = new Random();
+      for(long i=1; i <= n; i++) {
+        writer.write(r.nextInt()+"");
+        if(i != n) {
+          writer.write(",");
+        }
+      }
+      writer.write(']');
+      writer.flush();
+    };
+
+    return Response.ok(stream).build();
   }
 
   @PUT
@@ -70,4 +102,23 @@ public class WebService {
     return Response.ok().build();
   }
 
+  @PUT
+  @Path("put/{someId}/")
+  @Consumes({MediaType.APPLICATION_JSON})
+  public Response putFile(
+                       @PathParam("someId") final long someId,
+                       final InputStream inputStream) throws IOException {
+    System.out.println(someId);
+
+    try(final Reader reader = new InputStreamReader(inputStream);
+        final BufferedReader br = new BufferedReader(reader)) {
+      String inputline;
+      while((inputline = br.readLine()) != null) {
+        System.out.println(inputline);
+      }
+    }
+
+
+    return Response.ok().build();
+  }
 }

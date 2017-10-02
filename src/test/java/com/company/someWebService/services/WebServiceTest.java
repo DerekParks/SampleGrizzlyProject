@@ -67,6 +67,24 @@ public class WebServiceTest {
     Assert.assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), responseMsg.getStatus());
   }
 
+  @Test
+  public void testGETQuery() {
+    final Response responseMsg = target.path(ROOT + "streamOut/").queryParam("n", 10000).request().get();
+
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), responseMsg.getStatus());
+    try {
+      System.out.println(new JSONArray(responseMsg.readEntity(String.class)).toString());
+    } catch (JSONException e) {
+      Assert.fail("Didn't get JSON back from server");
+    }
+  }
+
+  @Test
+  public void testPathParm() {
+    final Response responseMsg = target.path(ROOT+"put/123456").request().put(Entity.json("{\"java\":\"isfun\"}"));
+    Assert.assertEquals(Response.Status.OK.getStatusCode(), responseMsg.getStatus());
+  }
+
   @After
   public void teardown() {
     if (server != null) {
